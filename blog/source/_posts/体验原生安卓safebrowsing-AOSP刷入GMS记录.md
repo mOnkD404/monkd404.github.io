@@ -66,7 +66,12 @@ adb shell cmd overlay enable com.android.internal.systemui.navbar.gestural
 10. 系统webview 替换姿势
   1.  卸载系统webview 用chromium下脚本 android_webview/tools/remove_preinstalled_webview.py
   2. 安装新webview adb install 即可
-  3. 参考文档https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/aosp-system-integration.md
+  3. 如果需要让gapps刷入之后可以安装自编译版本的webview，需要在xml配置文件中加上
+```
+<webviewprovider description="Android WebView" packageName="com.android.webview" availableByDefault="true">
+    </webviewprovider>
+``` 
+  4. 参考文档https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/aosp-system-integration.md
 11. 验证结果
   1. 使用系统webview 访问 https://wutong-apk.cdn.bcebos.com/，出现红色风险提示页面，证明系统wbeview+gms工作正常。
   2. 安装chromium源码编译出的自编译包，在设置/开发者选项中，能同时看到：
