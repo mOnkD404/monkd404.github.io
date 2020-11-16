@@ -15,7 +15,7 @@
 <meta property="og:description" content="背景最近做safebrowsing时很多体验需要参照gms服务的体验，官方镜像可以体验，但是官方是release系统。aosp正常编译是不带gms的，而且webview的开发经常需要和系统webview作对比，因此需要一个能任意替换系统webview的userdebug系统并且带上gms。需求如下：  userdebug系统 支持随意替换系统webview 支持adb root，可以查看所有进程，">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2020-11-10T03:51:38.000Z">
-<meta property="article:modified_time" content="2020-11-16T05:35:28.657Z">
+<meta property="article:modified_time" content="2020-11-16T09:07:22.224Z">
 <meta property="article:author" content="MonkD404">
 <meta name="twitter:card" content="summary">
   
@@ -132,6 +132,10 @@
 <li><p> 卸载系统webview 用chromium下脚本 android_webview/tools/remove_preinstalled_webview.py</p>
 </li>
 <li><p>安装新webview adb install 即可</p>
+</li>
+<li><p>如果需要让gapps刷入之后可以安装自编译版本的webview，需要在xml配置文件中加上</p>
+<pre><code>&lt;webviewprovider description=&quot;Android WebView&quot; packageName=&quot;com.android.webview&quot; availableByDefault=&quot;true&quot;&gt;
+&lt;/webviewprovider&gt;</code></pre>
 </li>
 <li><p>参考文档<a target="_blank" rel="noopener" href="https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/aosp-system-integration.md">https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/aosp-system-integration.md</a></p>
 </li>

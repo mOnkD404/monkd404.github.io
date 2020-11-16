@@ -131,6 +131,10 @@
 </li>
 <li><p>安装新webview adb install 即可</p>
 </li>
+<li><p>如果需要让gapps刷入之后可以安装自编译版本的webview，需要在xml配置文件中加上</p>
+<pre><code>&lt;webviewprovider description=&quot;Android WebView&quot; packageName=&quot;com.android.webview&quot; availableByDefault=&quot;true&quot;&gt;
+&lt;/webviewprovider&gt;</code></pre>
+</li>
 <li><p>参考文档<a target="_blank" rel="noopener" href="https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/aosp-system-integration.md">https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/aosp-system-integration.md</a></p>
 </li>
 <li><p>验证结果</p>
