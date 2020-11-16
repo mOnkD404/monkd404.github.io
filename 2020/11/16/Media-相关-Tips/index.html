@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Media 相关 Tips | DTech</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Fragment MP4简称fmp4，一种特殊的MP4封装。常规的mp4文件将metadata放在文件结尾，ffmpeg可以用 -movflags faststart将metadata放在开头以支持更好的播放。分片的mp4会将每个片段的metadata和片段一起存放，并在头部有一个moov。moov [moof mdat]+在fmp4中，moov只保存基本信息，如track的数量，codec信息等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Media 相关 Tips">
+<meta property="og:url" content="https://bathingsun.xyz/2020/11/16/Media-%E7%9B%B8%E5%85%B3-Tips/index.html">
+<meta property="og:site_name" content="DTech">
+<meta property="og:description" content="Fragment MP4简称fmp4，一种特殊的MP4封装。常规的mp4文件将metadata放在文件结尾，ffmpeg可以用 -movflags faststart将metadata放在开头以支持更好的播放。分片的mp4会将每个片段的metadata和片段一起存放，并在头部有一个moov。moov [moof mdat]+在fmp4中，moov只保存基本信息，如track的数量，codec信息等">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-16T05:09:59.000Z">
+<meta property="article:modified_time" content="2020-11-16T05:13:07.489Z">
+<meta property="article:author" content="MonkD404">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="DTech" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">DTech</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://bathingsun.xyz"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Media-相关-Tips" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2020/11/16/Media-%E7%9B%B8%E5%85%B3-Tips/" class="article-date">
+  <time datetime="2020-11-16T05:09:59.000Z" itemprop="datePublished">2020-11-16</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Media 相关 Tips
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Fragment-MP4"><a href="#Fragment-MP4" class="headerlink" title="Fragment MP4"></a>Fragment MP4</h2><p>简称fmp4，一种特殊的MP4封装。<br>常规的mp4文件将metadata放在文件结尾，ffmpeg可以用 -movflags faststart将metadata放在开头以支持更好的播放。<br>分片的mp4会将每个片段的metadata和片段一起存放，并在头部有一个moov。<br>moov [moof mdat]+<br>在fmp4中，moov只保存基本信息，如track的数量，codec信息等。<br>Sample的位置和大小信息都保存在moof中。紧跟着moof的就是moof中记录了信息的sample块（mdat）。</p>
+<p>MP4的一些box：<br>ftyp File Type Box<br>moov Movie Header Box<br>sidx Segment Index<br>moof movie fragment</p>
+<p>分片的mp4结构：头部moov+sidx<br>每个分片moof+mdat</p>
+<h2 id="MP4的交织、分段、分片"><a href="#MP4的交织、分段、分片" class="headerlink" title="MP4的交织、分段、分片"></a>MP4的交织、分段、分片</h2><p>以下操作基于MP4Box。</p>
+<p>简单说：如果要支持边下边播，交织；如果需要流畅跳转，分段；如果需要自适应切换分辨率，分片。</p>
+<p>Interleaving (-inter) is when (groups of ) samples of different tracks are stored alternatively in the file: e.g. N milliseconds of video samples, followed by N milliseconds of audio samples, followed by N milliseconds of video samples … Typically, interleaved samples are grouped within an interleaving window. Interleaving reduces disk accesses, playback buffer requirements and enables progressive download and playback.<br>交织（-inter）是指不同轨道的（一组）样本交替存储在文件中：例如<br>N毫秒的视频样本，接着是N毫秒的音频样本，接着是N毫秒的视频样本……通常，交错的样本在交错窗口内分组。<br>交错可减少磁盘访问，回放缓冲要求并支持渐进式下载和回放。</p>
+<p>Fragmentation (-frag) is an optional process applicable to the MP4 file format. By default, MP4 files generated with MP4Box are not fragmented. This process consists in using Movie Fragments (moof). Movie Fragments is a tool introduced in the ISO spec to improve recording of long-running sequences and that is now used for HTTP streaming. Even if it is possible, according to the ISO spec, to do interleaving on fragments, MP4Box currently does not support it, because we don’t see important use cases for it. For instance, all audio samples within a fragment are contiguously stored and similarly for the video samples. The only way to ‘interleave’ tracks is to have small fragments. There may be some overhead for big files, we welcome comments on this.</p>
+<p>分段（-frag）是适用于MP4文件格式的可选过程。<br>默认情况下，使用MP4Box生成的MP4文件不会碎片化。<br>此过程包括使用电影片段（moof）。<br>Movie Fragments是ISO规范中引入的工具，用于改进长时间运行序列的记录，现在用于HTTP流式传输。<br>即使有可能，根据ISO规范，对片段进行交错，MP4Box目前也不支持它，因为我们没有看到重要的用例。<br>例如，片段内的所有音频样本被连续存储，并且类似地用于视频样本。<br>“交错”轨道的唯一方法是使用小片段。<br>大文件可能有一些开销，我们欢迎对此发表评论。</p>
+<p>Segmentation (-dash) is the process of creating segments, parts of an original file meant for individual/separate HTTP download (not necessarily for individual playback). A segment can be a part of a big file or a separate file. It is not specific to the MP4 file format (in particular it may apply to MPEG-2 TS) but a segment may imply specific ISO signaling (styp and sidx boxes, for instance). A segment is what is refered to by the XML file used to drive the HTTP Streaming and segment boundaries can be convenient places for bitstream switching. Segmentation often implies fragmentation but not necessarily.</p>
+<p>分段（-dash）是创建段的过程，原始文件的一部分用于单独/单独的HTTP下载（不一定用于单独回放）。<br>段可以是大文件的一部分或单独的文件。<br>它不是特定于MP4文件格式（特别是它可以应用于MPEG-2TS），但是段可以暗示特定的ISO信令（例如styp和sidx框）。<br>段是用于驱动HTTP流的XML文件所指的段，段边界可以是用于比特流切换的便利位置。<br>细分通常意味着碎片，但不一定。</p>
+<h2 id="DASH的构成"><a href="#DASH的构成" class="headerlink" title="DASH的构成"></a>DASH的构成</h2><p>Danymic Adaptive Streaming over HTTP。类似苹果的HLS。</p>
+<p>MPD: an XML document describing where the various media resources present in the content are located. The media resources can be single-media (for example, a video-only MP4 file) or a multiplexed set of streams (for example an AV MPEG-2 Transort Stream). Streams can be scalable (such as SVC) but we won’t go into such details as GPAC doesn’t support advanced description of scalable streams in DASH. Some media resources may exist in different versions, for example different bitrate or language or resolutions. In DASH, such a “version” of the stream is called a representation, and all representations are grouped together in an AdaptationSet.<br>segment: a continuous part of a media resource. The segment is the smallest part of the media that can be located in the MPD. What a segment exactly contains depends on the underlying media format of the content.<br>subsegment: a continuous part of a segment, or of a subsegment.<br>sidx: short name for SegmentIndexBox, this is an ISOBMF (MP4/3GP container) structure describing a segment by giving its earliest presentation time, how the segment is further divided into subsegments, random access points locations (byte offset) and timing in the segment payload. The goal of the SIDX is to build an index of the segment at a given granularity to simplify trick modes (seeking, fast-forward, fast-rewind, …).<br>Google翻译：<br>MPD：描述内容中存在的各种媒体资源的位置的XML文档。<br>媒体资源可以是单媒体（例如，仅视频MP4文件）或多路复用的流集（例如AV MPEG-2 Transort流）。<br>流可以是可扩展的（例如SVC），但我们不会详细介绍GPAC不支持DASH中可伸缩流的高级描述。<br>某些媒体资源可能存在于不同版本中，例如不同的比特率或语言或分辨率。<br>在DASH中，流的这种“版本”被称为表示，并且所有表示在AdaptationSet中被组合在一起。<br>segment：媒体资源的连续部分。<br>该段是可以位于MPD中的媒体的最小部分。<br>段确切包含的内容取决于内容的基础媒体格式。<br>子段：段或子段的连续部分。<br>sidx：SegmentIndexBox的短名称，这是一个ISOBMF（MP4 / 3GP容器）结构，通过给出其最早的呈现时间，段如何进一步划分为子段，随机访问点位置（字节偏移）和段中的时序来描述段<br>有效载荷。<br>SIDX的目标是以给定的粒度构建段的索引，以简化特技模式（搜索，快进，快退，……）。</p>
+<h2 id="MKV-MIME-type"><a href="#MKV-MIME-type" class="headerlink" title="MKV MIME type"></a>MKV MIME type</h2><p>Mkv没有官方的mime type，一般用video/x-matroska</p>
+<p>获取服务器返回的http header中的mime type<br>Curl -I <a target="_blank" rel="noopener" href="http://xxx/">http://xxx</a></p>
+<h2 id="流媒体协议"><a href="#流媒体协议" class="headerlink" title="流媒体协议"></a>流媒体协议</h2><p>RTMP 基于tcp的低延时协议，flash支持<br>HLS 基于http的协议，中高延时<br>DASH 类似HLS，中高延时<br>WebRTC 低延时协议，但是支持的设备有限</p>
+<h2 id="YUV颜色模式"><a href="#YUV颜色模式" class="headerlink" title="YUV颜色模式"></a>YUV颜色模式</h2><p>YUV分为打包格式和平面格式。<br>Packed format vs. planar format<br>在打包格式中，YUV存储在一个序列中，在平面格式中，YUV被存储为三个单独的平面，平面格式需要多个纹理，每个平面需要一个纹理。</p>
+<p>##　Linux进程获取本进程是否正在被debug<br>Chromium中 base::debug::WaitForDebugger(time, silent);<br>原理：<br>/proc/self/status中有一条记录： TracerPid: 0<br>被调试时有值。<br>1.可以用此方法让进程等待debug<br>while( ! isdebug() ) {<br>sleep(1);<br>}<br>isdebug中读取TracerPid的值看是否为0。</p>
+<p>2.还有一种比较粗暴的方法<br>volitale int test=1;<br>while(test) {<br>sleep(1);<br>}<br>GDB attach之后，set var test=0</p>
+<p>用这个方法可以在一些不方便打断点的地方（如浏览器启动时）等待gdb连接。</p>
+<h2 id="视频码率控制"><a href="#视频码率控制" class="headerlink" title="视频码率控制"></a>视频码率控制</h2><p>CBR VBR<br>CBR constant bitrate 恒定比特率<br>VBR variable bitrate 可变比特率<br>VBV Video Buffering Verifier 视频缓冲区验证</p>
+<p>几种控制模式：</p>
+<p>Constant QP/CQP<br>QP quantization parameter 控制Mcroblock的质量，QP越高压缩率越高质量越差。<br>CQP会导致比特率根据场景复杂度变化很大，并且编码效率降低。一般只作为研究用。</p>
+<p>Average Bitrate ABR<br>ffmpeg -i input -c:v libx264 -b:v 1M output<br>因为编码器无法准确知道未来的帧分布情况，因此只能估计，<br>ABR模式会导致质量波动严重，不建议使用.</p>
+<p>Constant Bitrate<br>ffmpeg -i input -c:v libx264 -x264-params “nal-hrd=cbr:fore-cfr=1” -b:v 1M -minrate 1M -maxrate 1M -bufsize 2M output<br>ffmpeg -i input -c:v libvpx-vp9 -b:v 1M -maxrate 1M -minrate 1M output<br>固定比特率，使用libx264时需要输出格式为ts，因为mp4不支持NAL。<br>如果输入源易于编码，此模式会浪费带宽。</p>
+<p>2-Pass ABR<br>编码器通过两次编码生成码流，第一次计算编码帧的编码成本，第二次更有效的使用bit，确保输出质量最佳。<br>x264<br>ffmpeg -i <input> -c:v libx264 -b:v 1M -pass 1 -f mp4 /dev/null<br>ffmpeg -i <input> -c:v libx264 -b:v 1M -pass 2 .mp4<br>x265<br>ffmpeg -i <input> -c:v libx264 -b:v 1M -x265-params pass=1 -f mp4 /dev/null<br>ffmpeg -i <input> -c:v libx264 -b:v 1M -x265-params pass=2 .mp4<br>vp9<br>ffmpeg -i <input> -c:v libvpx-vp9 -b:v 1M -pass 1 -f webm /dev/null<br>ffmpeg -i <input> -c:v libvpx-vp9 -b:v 1M -pass 2 .webm</p>
+<p>Constant Quality (CQ) / Constant Rate Factor (CRF)<br>CRF是x264和x265的默认质量设置参数，可选值0-51，越小质量越好。<br>CRF模式在编码过程中保持恒定的质量，和2passABR相比，CRF模式只需设置质量，2passABR可以控制文件大小，<br>CRF在1pass编码中提供最佳的压缩率，但是无法限制文件大小和比特率，因此不建议流式传输使用。</p>
+<p>ffmpeg -i <input> -c:v libx264 -crf 23<br>ffmpeg -i <input> -c:v libx265 -crf 28<br>ffmpeg -i <input> -c:v libvpx-vp9 -crf 30 -b:v 0</p>
+<p>Constrained Encoding (VBV)<br>确保最大最小的比特率，可以和2passABR、CRF同时使用。<br>ffmpeg -i <input> -c:v libx264 -crf 23 -maxrate 1M -bufsize 2M<br>ffmpeg -i <input> -c:v libx265 -crf 28 -x265-params vbv-maxrate=1000:vbv-bufsize=2000<br>ffmpeg -i <input> -c:v libvpx-vp9 -crf 30 -b:v 2M</p>
+<p>对于x264 x265，可以用-tune zerolatency和 -preset ultrafast提高编码速度，降低质量。<br>对于VP9，可以用-quality realtime和-speed 5。</p>
+<p>2passABR+VBV<br>ffmpeg -i <input> -c:v libx264 -b:v 1M -maxrate 1M -bufsize 2M -pass 1 -f mp4 /dev/null<br>ffmpeg -i <input> -c:v libx264 -b:v 1M -maxrate 1M -bufsize 2M -pass 2<br>ffmpeg -i <input> -c:v libx265 -b:v 1M -x265-params pass=1:vbv-maxrate=1000:vbv-bufsize=2000 -f mp4 /dev/null<br>ffmpeg -i <input> -c:v libx265 -b:v 1M -x265-params pass=2:vbv-maxrate=1000:vbv-bufsize=2000</p>
+<p>ffmpeg -i <input> -c:v libvpx-vp9 -b:v 1M -maxrate 1M -bufsize 2M -pass 1 -f webm /dev/null<br>ffmpeg -i <input> -c:v libvpx-vp9 -b:v 1M -maxrate 1M -bufsize 2M -pass 2</p>
+<p>bufsize如果不确定，可以设置成maxrate的两倍大小。如果客户端内存很少，可以与maxrate相同。如果限制比特率，可以设置为maxrate的一半或更低。</p>
+<p>总结，根据使用场景：<br>存档：CRF<br>流：2passCRF或ABR+VBV<br>直播：1passCRF或ABR+VBV<br>为设备编码：2passABR<br>Shaka player<br>Google的js播放器，支持MSE 、EME、DASH等播放格式。<br>不支持SegmentList中的SegmentURL@indexRange属性，<br>仅支持SegmentList@duration或SegmentTimeline</p>
+<h2 id="ffmpeg添加分辨率水印（用于测试DASH自适应切换分辨率）"><a href="#ffmpeg添加分辨率水印（用于测试DASH自适应切换分辨率）" class="headerlink" title="ffmpeg添加分辨率水印（用于测试DASH自适应切换分辨率）"></a>ffmpeg添加分辨率水印（用于测试DASH自适应切换分辨率）</h2><p>ffmpeg -y -i frag_aac.flv -c:a libfdk_aac -ac 2 -ab 128k -c:v libx264 -x264opts ‘keyint=24:min-keyint=24:no-scenecut’ -b:v 800k -maxrate 800k -bufsize 500k -vf “scale=-1:540, drawtext=fontfile=/usr/share/fonts/truetype/msttcorefonts/arial.ttf: text=’540:%{frame_num}’: start_number=1: x=(w-tw)/2: y=h-(2*lh): fontcolor=black: fontsize=20: box=1: boxcolor=white: boxborderw=5” ./dash_800k.mp4</p>
+<h2 id="检查关键帧位置"><a href="#检查关键帧位置" class="headerlink" title="检查关键帧位置"></a>检查关键帧位置</h2><p>两种方法：<br>ffprobe -loglevel error -skip_frame nokey -select_streams v:0 -show_entries frame=pkt_pts_time -of csv=print_section=0 frag_dash.mp4</p>
+<p>ffprobe frag_dash.mp4 -show_frames -select_streams v:0 | grep key_frame</p>
+<h2 id="检查关键帧对齐"><a href="#检查关键帧对齐" class="headerlink" title="检查关键帧对齐"></a>检查关键帧对齐</h2><p>Check key frame alignment<br><a target="_blank" rel="noopener" href="https://gpac.wp.imt.fr/2015/11/02/check-key-frame-alignment-with-mp4box/">https://gpac.wp.imt.fr/2015/11/02/check-key-frame-alignment-with-mp4box/</a></p>
+<h2 id="平均GOP长度"><a href="#平均GOP长度" class="headerlink" title="平均GOP长度"></a>平均GOP长度</h2><p>Get average GOP length:<br>MP4Box -info TRACK_ID source1.mp4 2&gt;&amp;1 | grep GOP</p>
+<p>MP4Box -std -diso source1.mp4 2&gt;&amp;1 | grep SyncSampleEntry &gt; 1.txt</p>
+<h2 id="打印关键帧时间"><a href="#打印关键帧时间" class="headerlink" title="打印关键帧时间"></a>打印关键帧时间</h2><p>print key frame time:<br>ffprobe -loglevel error -skip_frame nokey -select_streams v:0 -show_entries frame=pkt_pts_time -of csv=print_section=0 input.mp4</p>
+<p>如果MP4Box生成的video 和audio切片数量不同<br>Different number of segments for video and audio when use mp4box:</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/gpac/gpac/issues/774">https://github.com/gpac/gpac/issues/774</a><br><a target="_blank" rel="noopener" href="https://github.com/gpac/gpac/issues/771">https://github.com/gpac/gpac/issues/771</a></p>
+<h2 id="DASH-和-HLS"><a href="#DASH-和-HLS" class="headerlink" title="DASH 和 HLS"></a>DASH 和 HLS</h2><p>DASH 使用.mpd 文件索引，切片格式为fragment mp4<br>HLS使用.m3u8 文件索引，切片格式为ts</p>
+<h2 id="ffmpeg和mp4box为dash格式转码"><a href="#ffmpeg和mp4box为dash格式转码" class="headerlink" title="ffmpeg和mp4box为dash格式转码"></a>ffmpeg和mp4box为dash格式转码</h2><p>ffmpeg encode for dash :<br>must has I-frames on same timestamp</p>
+<h2 id="重新编码视频，在相同位置插入I帧："><a href="#重新编码视频，在相同位置插入I帧：" class="headerlink" title="重新编码视频，在相同位置插入I帧："></a>重新编码视频，在相同位置插入I帧：</h2><p>ffmpeg -y -i inputfile -c:a libfdk_aac -ac 2 -ab 128k -c:v libx264 -x264opts ‘keyint=24:min-keyint=24:no-scenecut’ -b:v 1500k -maxrate 1500k -bufsize 1000k -vf “scale=-1:720” outputfile720.mp4</p>
+<p>ffmpeg -y -i inputfile -c:a libfdk_aac -ac 2 -ab 128k -c:v libx264 -x264opts ‘keyint=24:min-keyint=24:no-scenecut’ -b:v 800k -maxrate 800k -bufsize 500k -vf “scale=-1:540” outputfile540.mp4</p>
+<p>ffmpeg -y -i inputfile -c:a libfdk_aac -ac 2 -ab 128k -c:v libx264 -x264opts ‘keyint=24:min-keyint=24:no-scenecut’ -b:v 400k -maxrate 400k -bufsize 400k -vf “scale=-1:360” outputfile360.mp4</p>
+<p>keyint：GOP长度<br>min-keyint：最小GOP长度<br>Dash自适应切换清晰度要求不同分辨率的视频流必须在相同位置有关键帧。</p>
+<h2 id="用MP4Box添加track："><a href="#用MP4Box添加track：" class="headerlink" title="用MP4Box添加track："></a>用MP4Box添加track：</h2><p>MP4Box -add outputfile720.mp4#video -fps 24 output.mp4</p>
+<h2 id="用MP4Box制作dash："><a href="#用MP4Box制作dash：" class="headerlink" title="用MP4Box制作dash："></a>用MP4Box制作dash：</h2><p>MP4Box -dash 2000 -rap -bs-switching no output.mp4#trackID=1:dur=60 output.mp4#trackID=2:dur=60 output.mp4#trackID=3:dur=60 -out mpds/output_dash.mpd</p>
+<h2 id="ffmpeg转码时设置GOP的参数"><a href="#ffmpeg转码时设置GOP的参数" class="headerlink" title="ffmpeg转码时设置GOP的参数"></a>ffmpeg转码时设置GOP的参数</h2><p>libx264:<br>-g sets the keyframe interval.<br>-keyint_min sets the minimum keyframe interval.<br>-x264-params “keyint=x:min-keyint=y” is the same as -g x -keyint_min y.<br>Note: When setting both to the same value, the minimum is internally set to half the maximum interval plus one, as seen in the x264 code:<br>h-&gt;param.i_keyint_min = x264_clip3( h-&gt;param.i_keyint_min, 1, h-&gt;param.i_keyint_max/2+1 );<br>libx265:<br>-g is not implemented.<br>-x265-params “keyint=x:min-keyint=y” works.<br>libvpx-vp9:<br>-g sets the keyframe interval.<br>-keyint_min sets the minimum keyframe interval<br>Note: Due to how FFmpeg works, -keyint_min is only forwarded to the encoder when it is the same as -g. In the code from libvpxenc.c in FFmpeg we can find:<br>if (avctx-&gt;keyint_min &gt;= 0 &amp;&amp; avctx-&gt;keyint_min == avctx-&gt;gop_size) enccfg.kf_min_dist = avctx-&gt;keyint_min; if (avctx-&gt;gop_size &gt;= 0) enccfg.kf_max_dist = avctx-&gt;gop_size;<br>This might be a bug (or lack of feature?), since libvpx definitely supports setting a different value for kf_min_dist.</p>
+<h2 id="libx264为DASH转码"><a href="#libx264为DASH转码" class="headerlink" title="libx264为DASH转码"></a>libx264为DASH转码</h2><p>x264 –output intermediate_2400k.264 –fps 24 –preset slow –bitrate 2400 –vbv-maxrate 4800 –vbv-bufsize 9600 –min-keyint 48 –keyint 48 –scenecut 0 –no-scenecut –pass 1 –video-filter “resize:width=1280,height=720” inputvideo.mkv</p>
+<p>MP4Box -add intermediate.264 -fps 24 output_2400k.mp4</p>
+<p>MP4Box -dash 4000 -frag 4000 -rap -segment-name segment_ output_2400k.mp4</p>
+<p>MP4Box -dash 4000 -frag 4000 -rap -segment-name segment_ video.mp4#audio</p>
+<h2 id="I帧和IDR帧的区别"><a href="#I帧和IDR帧的区别" class="headerlink" title="I帧和IDR帧的区别"></a>I帧和IDR帧的区别</h2><p>Instantaneous Decoder Refresh (IDR) frames: These allow independent decoding of the following frames, without access to frames previous to the IDR frame.<br>Non-IDR-frames: These require a previous IDR frame for the decoding to work. Non-IDR frames can be used for scene cuts in the middle of a GOP (group of pictures).</p>
+<p>An IDR frame is a special type of I-frame in H.264. An IDR frame specifies that no frame after the IDR frame can reference any frame before it. This makes seeking the H.264 file easier and more responsive in the player.</p>
+<p>GOP boundary: between two IDR frames</p>
+<p>IDR帧是一类特殊的I帧，IDR帧之后的帧都不能参考IDR帧之前的内容</p>
+<p>两个IDR帧之间的区域称为GOP，group of pictures</p>
+<p>开启scene cut后，GOP内有可能被插入新的非IDR帧的I帧</p>
+<p>scenecut 场景切换<br>x264有一指标，用于衡量每一帧与前一帧的差异程度。<br>若该值小于scenecut，则检测到’场景切换’(‘scenecut’)条件，<br>并放置一个I帧 (前提：该帧与上一个IDR帧的间隔小于min-keyint，否则就放置一个IDR帧)。<br>提高scenecut值将增加检测到的’场景切换’数量。<br>ffmpeg中使用-sc_threshold设置此项。<br>将scenecut设为0，相当于设定 no-scenecut</p>
+<p>转码DASH时为了I帧的稳定，需要关闭场景切换。</p>
+<h2 id="ffmpeg提取音频"><a href="#ffmpeg提取音频" class="headerlink" title="ffmpeg提取音频"></a>ffmpeg提取音频</h2><p>ffmpeg -i input.mkv # show stream numbers and formats<br>ffmpeg -i input.mkv -c copy audio.m4a # AAC<br>ffmpeg -i input.mkv -c copy audio.mp3 # MP3<br>ffmpeg -i input.mkv -c copy audio.ac3 # AC3<br>ffmpeg -i input.mkv -an -c copy video.mkv<br>ffmpeg -i input.mkv -map 0:1 -c copy audio.m4a # stream 1</p>
+<h2 id="ffmpeg制作hls切片"><a href="#ffmpeg制作hls切片" class="headerlink" title="ffmpeg制作hls切片"></a>ffmpeg制作hls切片</h2><p>ffmpeg -i input.mp4 -c:v libx264 -c:a aac -strict -2 -f hls output.m3u8</p>
+<h2 id="media-source中切换track"><a href="#media-source中切换track" class="headerlink" title="media source中切换track"></a>media source中切换track</h2><p>SourceBuffer.videoTracks[I].selected = true/false</p>
+<h2 id="用MediaSource播放MP4的要求"><a href="#用MediaSource播放MP4的要求" class="headerlink" title="用MediaSource播放MP4的要求"></a>用MediaSource播放MP4的要求</h2><p>MSE(Media Source Extensions)需要mp4中将moov放在文件开始，并有moof（movie fragment box ）在mdat(media data box)前面</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://bathingsun.xyz/2020/11/16/Media-%E7%9B%B8%E5%85%B3-Tips/" data-id="ckhk3e0p40000lbs31pyr1tq4" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/11/16/Android-WebView-DrawFn-%E7%9B%B8%E5%85%B3/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android WebView DrawFn 相关</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/11/">November 2020</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2020/11/16/Media-%E7%9B%B8%E5%85%B3-Tips/">Media 相关 Tips</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/16/Android-WebView-DrawFn-%E7%9B%B8%E5%85%B3/">Android WebView DrawFn 相关</a>
+          </li>
+        
+          <li>
+            <a href="/2020/11/16/%E4%BD%93%E9%AA%8C%E5%8E%9F%E7%94%9F%E5%AE%89%E5%8D%93safebrowsing-AOSP%E5%88%B7%E5%85%A5GMS%E8%AE%B0%E5%BD%95/">体验原生安卓safebrowsing:AOSP刷入GMS记录</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 MonkD404<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+
+  
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+  </div>
+</body>
+</html>
