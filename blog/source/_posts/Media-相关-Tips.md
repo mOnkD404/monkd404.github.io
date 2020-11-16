@@ -1,6 +1,6 @@
 ---
 title: Media 相关 Tips
-date: 2020-11-16 13:09:59
+date: 2020-01-01 13:09:59
 tags:
 ---
 ## Fragment MP4
@@ -133,41 +133,41 @@ ffmpeg -i input -c:v libvpx-vp9 -b:v 1M -maxrate 1M -minrate 1M output
 2-Pass ABR
 编码器通过两次编码生成码流，第一次计算编码帧的编码成本，第二次更有效的使用bit，确保输出质量最佳。
 x264
-ffmpeg -i <input> -c:v libx264 -b:v 1M -pass 1 -f mp4 /dev/null
-ffmpeg -i <input> -c:v libx264 -b:v 1M -pass 2 .mp4
+ffmpeg -i input -c:v libx264 -b:v 1M -pass 1 -f mp4 /dev/null
+ffmpeg -i input -c:v libx264 -b:v 1M -pass 2 .mp4
 x265
-ffmpeg -i <input> -c:v libx264 -b:v 1M -x265-params pass=1 -f mp4 /dev/null
-ffmpeg -i <input> -c:v libx264 -b:v 1M -x265-params pass=2 .mp4
+ffmpeg -i input -c:v libx264 -b:v 1M -x265-params pass=1 -f mp4 /dev/null
+ffmpeg -i input -c:v libx264 -b:v 1M -x265-params pass=2 .mp4
 vp9
-ffmpeg -i <input> -c:v libvpx-vp9 -b:v 1M -pass 1 -f webm /dev/null
-ffmpeg -i <input> -c:v libvpx-vp9 -b:v 1M -pass 2 .webm
+ffmpeg -i input -c:v libvpx-vp9 -b:v 1M -pass 1 -f webm /dev/null
+ffmpeg -i input -c:v libvpx-vp9 -b:v 1M -pass 2 .webm
 
 Constant Quality (CQ) / Constant Rate Factor (CRF)
 CRF是x264和x265的默认质量设置参数，可选值0-51，越小质量越好。
 CRF模式在编码过程中保持恒定的质量，和2passABR相比，CRF模式只需设置质量，2passABR可以控制文件大小，
 CRF在1pass编码中提供最佳的压缩率，但是无法限制文件大小和比特率，因此不建议流式传输使用。
 
-ffmpeg -i <input> -c:v libx264 -crf 23
-ffmpeg -i <input> -c:v libx265 -crf 28
-ffmpeg -i <input> -c:v libvpx-vp9 -crf 30 -b:v 0
+ffmpeg -i input -c:v libx264 -crf 23
+ffmpeg -i input -c:v libx265 -crf 28
+ffmpeg -i input -c:v libvpx-vp9 -crf 30 -b:v 0
 
 Constrained Encoding (VBV)
 确保最大最小的比特率，可以和2passABR、CRF同时使用。
-ffmpeg -i <input> -c:v libx264 -crf 23 -maxrate 1M -bufsize 2M
-ffmpeg -i <input> -c:v libx265 -crf 28 -x265-params vbv-maxrate=1000:vbv-bufsize=2000
-ffmpeg -i <input> -c:v libvpx-vp9 -crf 30 -b:v 2M
+ffmpeg -i input -c:v libx264 -crf 23 -maxrate 1M -bufsize 2M
+ffmpeg -i input -c:v libx265 -crf 28 -x265-params vbv-maxrate=1000:vbv-bufsize=2000
+ffmpeg -i input -c:v libvpx-vp9 -crf 30 -b:v 2M
 
 对于x264 x265，可以用-tune zerolatency和 -preset ultrafast提高编码速度，降低质量。
 对于VP9，可以用-quality realtime和-speed 5。
 
 2passABR+VBV
-ffmpeg -i <input> -c:v libx264 -b:v 1M -maxrate 1M -bufsize 2M -pass 1 -f mp4 /dev/null
-ffmpeg -i <input> -c:v libx264 -b:v 1M -maxrate 1M -bufsize 2M -pass 2
-ffmpeg -i <input> -c:v libx265 -b:v 1M -x265-params pass=1:vbv-maxrate=1000:vbv-bufsize=2000 -f mp4 /dev/null
-ffmpeg -i <input> -c:v libx265 -b:v 1M -x265-params pass=2:vbv-maxrate=1000:vbv-bufsize=2000
+ffmpeg -i input -c:v libx264 -b:v 1M -maxrate 1M -bufsize 2M -pass 1 -f mp4 /dev/null
+ffmpeg -i input -c:v libx264 -b:v 1M -maxrate 1M -bufsize 2M -pass 2
+ffmpeg -i input -c:v libx265 -b:v 1M -x265-params pass=1:vbv-maxrate=1000:vbv-bufsize=2000 -f mp4 /dev/null
+ffmpeg -i input -c:v libx265 -b:v 1M -x265-params pass=2:vbv-maxrate=1000:vbv-bufsize=2000
 
-ffmpeg -i <input> -c:v libvpx-vp9 -b:v 1M -maxrate 1M -bufsize 2M -pass 1 -f webm /dev/null
-ffmpeg -i <input> -c:v libvpx-vp9 -b:v 1M -maxrate 1M -bufsize 2M -pass 2
+ffmpeg -i input -c:v libvpx-vp9 -b:v 1M -maxrate 1M -bufsize 2M -pass 1 -f webm /dev/null
+ffmpeg -i input -c:v libvpx-vp9 -b:v 1M -maxrate 1M -bufsize 2M -pass 2
 
 bufsize如果不确定，可以设置成maxrate的两倍大小。如果客户端内存很少，可以与maxrate相同。如果限制比特率，可以设置为maxrate的一半或更低。
 

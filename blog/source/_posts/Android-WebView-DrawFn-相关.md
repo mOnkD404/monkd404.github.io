@@ -1,6 +1,6 @@
 ---
 title: Android WebView DrawFn 相关
-date: 2020-11-16 13:05:17
+date: 2020-09-22 13:05:17
 tags:
 ---
 在 chromium 的较高版本 webview 中，适配了android Q 的 vulkan 渲染。
