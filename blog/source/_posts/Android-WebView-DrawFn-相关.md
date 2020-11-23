@@ -167,3 +167,47 @@ int CreateFunctor(void* data, AwDrawFnFunctorCallbacks* functor_callbacks) {
 #25 0xf1ea940a in __pthread_start(void*) () from /tmp/adb-gdb-libs-803fd342/system/lib/libc.so
 #26 0xf1e630ce in __start_thread () from /tmp/adb-gdb-libs-803fd342/system/lib/libc.so
 ```
+RasterTileWorker
+```
+#0  gpu::SharedImageInterfaceProxy::CreateSharedImage () at ../../gpu/ipc/client/shared_image_interface_proxy.cc:63
+#1  0xc2ae3952 in cc::(anonymous namespace)::RasterizeSourceOOP () at ./../../cc/raster/gpu_raster_buffer_provider.cc:142
+#2  cc::GpuRasterBufferProvider::PlaybackOnWorkerThreadInternal () at ./../../cc/raster/gpu_raster_buffer_provider.cc:546
+#3  cc::GpuRasterBufferProvider::PlaybackOnWorkerThread () at ./../../cc/raster/gpu_raster_buffer_provider.cc:470
+#4  cc::GpuRasterBufferProvider::RasterBufferImpl::Playback () at ./../../cc/raster/gpu_raster_buffer_provider.cc:325
+#5  0xc2b4b6c8 in cc::(anonymous namespace)::RasterTaskImpl::RunOnWorkerThread () at ./../../cc/tiles/tile_manager.cc:160
+#6  0xc365e4d2 in content::CategorizedWorkerPool::RunTaskInCategoryWithLockAcquired () at ./../../content/renderer/categorized_worker_pool.cc:400
+#7  content::CategorizedWorkerPool::RunTaskWithLockAcquired () at ./../../content/renderer/categorized_worker_pool.cc:378
+#8  content::CategorizedWorkerPool::Run () at ./../../content/renderer/categorized_worker_pool.cc:260
+#9  content::(anonymous namespace)::CategorizedWorkerPoolThread::Run () at ./../../content/renderer/categorized_worker_pool.cc:55
+#10 0xc21896a6 in base::SimpleThread::ThreadMain () at ./../../base/threading/simple_thread.cc:80
+#11 0xc21ad234 in base::(anonymous namespace)::ThreadFunc () at ./../../base/threading/platform_thread_posix.cc:81
+```
+InProcGPUThread
+```
+
+#0  gpu::SharedImageBackingFactoryGLTexture::MakeBacking ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:1222
+#1  0xc2d72960 in gpu::SharedImageBackingFactoryGLTexture::CreateSharedImage ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:1052
+#2  0xc2d72442 in gpu::SharedImageBackingFactoryGLTexture::CreateSharedImage ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:857
+#3  0xc2d74fe6 in gpu::SharedImageFactory::CreateSharedImage ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_factory.cc:115
+#4  0xc2dd1540 in gpu::SharedImageStub::OnCreateSharedImage () at ./../../gpu/ipc/service/shared_image_stub.cc:99
+#5  0xc2dd1250 in base::DispatchToMethodImpl<gpu::SharedImageStub*, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>, 0u>(gpu::SharedImageStub* const&, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>&&, std::__1::integer_sequence<unsigned int, 0u>) ()
+    at ../../base/tuple.h:52
+#6  base::DispatchToMethod<gpu::SharedImageStub*, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params> >(gpu::SharedImageStub* const&, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>&&) () at ../../base/tuple.h:60
+#7  IPC::DispatchToMethod<gpu::SharedImageStub, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), void, std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params> >(gpu::SharedImageStub*, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), void*, std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>&&) () at ../../ipc/ipc_message_templates.h:51
+#8  IPC::MessageT<GpuChannelMsg_CreateSharedImage_Meta, std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>, void>::Dispatch<gpu::SharedImageStub, gpu::SharedImageStub, void, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&)> ()
+    at ../../ipc/ipc_message_templates.h:146
+#9  gpu::SharedImageStub::OnMessageReceived () at ./../../gpu/ipc/service/shared_image_stub.cc:69
+#10 0xc2dcd8b0 in gpu::GpuChannel::HandleMessageHelper () at ./../../gpu/ipc/service/gpu_channel.cc:614
+#11 0xc2dccbbc in gpu::GpuChannel::HandleMessage () at ./../../gpu/ipc/service/gpu_channel.cc:570
+#12 0xc2c337ce in base::OnceCallback<void ()>::Run() && () at ../../base/callback.h:97
+#13 gpu::Scheduler::RunNextTask () at ./../../gpu/command_buffer/service/scheduler.cc:527
+#14 0xc2245d46 in base::OnceCallback<void ()>::Run() && () at ../../base/callback.h:97
+#15 base::TaskAnnotator::RunTask () at ./../../base/task/common/task_annotator.cc:114
+#16 0xc22501f0 in base::sequence_manager::internal::ThreadControllerWithMessagePumpImpl::DoWorkImpl ()
+    at ./../../base/task/sequence_manager/thread_controller_with_message_pump_impl.cc:363
+#17 0xc224ff5a in base::sequence_manager::internal::ThreadControllerWithMessagePumpImpl::DoSomeWork ()
+```
