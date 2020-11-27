@@ -211,3 +211,88 @@ InProcGPUThread
     at ./../../base/task/sequence_manager/thread_controller_with_message_pump_impl.cc:363
 #17 0xc224ff5a in base::sequence_manager::internal::ThreadControllerWithMessagePumpImpl::DoSomeWork ()
 ```
+
+RenderThread 中 InProcessCommandBuffer建立
+```
+Thread 28 "RenderThread" hit Breakpoint 1, gpu::InProcessCommandBuffer::InProcessCommandBuffer ()
+    at ../../gpu/ipc/in_process_command_buffer.cc:285
+285     }
+(gdb) bt
+#0  gpu::InProcessCommandBuffer::InProcessCommandBuffer () at ../../gpu/ipc/in_process_command_buffer.cc:285
+#1  0xc09722f2 in std::__1::make_unique<gpu::InProcessCommandBuffer, gpu::CommandBufferTaskExecutor*&, GURL>(gpu::CommandBufferTaskExecutor*&, GURL&&) () at ../../buildtools/third_party/libc++/trunk/include/memory:3131
+#2  gpu::GLInProcessContext::Initialize () at ../../gpu/ipc/gl_in_process_context.cc:75
+#3  0xbf09bf00 in android_webview::AwRenderThreadContextProvider::AwRenderThreadContextProvider ()
+    at ../../android_webview/browser/gfx/aw_render_thread_context_provider.cc:69
+#4  android_webview::AwRenderThreadContextProvider::Create () at ../../android_webview/browser/gfx/aw_render_thread_context_provider.cc:32
+#5  0xbf0a25f4 in android_webview::SurfacesInstance::SurfacesInstance () at ../../android_webview/browser/gfx/surfaces_instance.cc:129
+#6  android_webview::SurfacesInstance::GetOrCreateInstance () at ../../android_webview/browser/gfx/surfaces_instance.cc:55
+#7  0xbf09f3e4 in android_webview::HardwareRenderer::HardwareRenderer () at ../../android_webview/browser/gfx/hardware_renderer.cc:33
+#8  0xbf0a0f4c in android_webview::RenderThreadManager::DrawOnRT () at ../../android_webview/browser/gfx/render_thread_manager.cc:203
+#9  0xbf09a31a in android_webview::AwDrawFnImpl::DrawInternal<AwDrawFn_DrawGLParams> ()
+    at ../../android_webview/browser/gfx/aw_draw_fn_impl.cc:624
+#10 android_webview::AwDrawFnImpl::DrawGL () at ../../android_webview/browser/gfx/aw_draw_fn_impl.cc:275
+#11 android_webview::(anonymous namespace)::DrawGLWrapper () at ../../android_webview/browser/gfx/aw_draw_fn_impl.cc:133
+#12 0xe0d68262 in android::(anonymous namespace)::draw_gl(int, void*, android::uirenderer::DrawGlInfo const&) ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libwebviewchromium_plat_support.so
+#13 0xebb53e20 in android::uirenderer::WebViewFunctor::drawGl(android::uirenderer::DrawGlInfo const&) ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#14 0xebb5356e in android::uirenderer::skiapipeline::GLFunctorDrawable::onDraw(SkCanvas*) ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#15 0xeba7a024 in SkCanvas::onDrawDrawable(SkDrawable*, SkMatrix const*) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#16 0xeba725f4 in android::uirenderer::skiapipeline::RenderNodeDrawable::drawContent(SkCanvas*) const ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#17 0xeba98a42 in android::uirenderer::skiapipeline::RenderNodeDrawable::forceDraw(SkCanvas*) ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#18 0xeba9dcc8 in android::uirenderer::skiapipeline::SkiaPipeline::renderLayersImpl(android::uirenderer::LayerUpdateQueue const&, bool) ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#19 0xeba9be44 in android::uirenderer::skiapipeline::SkiaPipeline::renderFrame(android::uirenderer::LayerUpdateQueue const&, SkRect const&, std::__1::vector<android::sp<android::uirenderer::RenderNode>, std::__1::allocator<android::sp<android::uirenderer::RenderNode> > > const&, bool, android::uirenderer::Rect const&, sk_sp<SkSurface>, SkMatrix const&) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+```
+GPU线程 创建 SharedImageFactory
+```
+#0  gpu::SharedImageFactory::SharedImageFactory ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_factory.cc:96
+#1  0xc0993164 in std::__1::make_unique<gpu::SharedImageFactory, gpu::GpuPreferences const&, gpu::GpuDriverBugWorkarounds const&, gpu::GpuFeatureInfo const&, gpu::SharedContextState*, gpu::MailboxManager*, gpu::SharedImageManager*, gpu::ImageFactory*, gpu::SharedImageStub*, bool>(gpu::GpuPreferences const&, gpu::GpuDriverBugWorkarounds const&, gpu::GpuFeatureInfo const&, gpu::SharedContextState*&&, gpu::MailboxManager*&&, gpu::SharedImageManager*&&, gpu::ImageFactory*&&, gpu::SharedImageStub*&&, bool&&) ()
+    at ../../buildtools/third_party/libc++/trunk/include/memory:3131
+#2  gpu::SharedImageStub::MakeContextCurrentAndCreateFactory () at ./../../gpu/ipc/service/shared_image_stub.cc:310
+#3  0xc0990360 in gpu::SharedImageStub::Create () at ./../../gpu/ipc/service/shared_image_stub.cc:51
+#4  gpu::GpuChannel::CreateSharedImageStub () at ./../../gpu/ipc/service/gpu_channel.cc:598
+#5  gpu::GpuChannel::Create () at ./../../gpu/ipc/service/gpu_channel.cc:432
+#6  gpu::GpuChannelManager::EstablishChannel () at ./../../gpu/ipc/service/gpu_channel_manager.cc:171
+#7  0xbf485426 in viz::GpuServiceImpl::EstablishGpuChannel(int, unsigned long long, bool, bool, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)>) () at ./../../components/viz/service/gl/gpu_service_impl.cc:648
+#8  0xbf4887a4 in base::internal::FunctorTraits<void (viz::GpuServiceImpl::*)(int, unsigned long long, bool, bool, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)>), void>::Invoke<void (viz::GpuServiceImpl::*)(int, unsigned long long, bool, bool, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)>), base::WeakPtr<viz::GpuServiceImpl>, int, unsigned long long, bool, bool, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)> >(void (viz::GpuServiceImpl::*)(int, unsigned long long, bool, bool, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)>), base::WeakPtr<viz::GpuServiceImpl>&&, int&&, unsigned long long&&, bool&&, bool&&, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)>&&) () at ../../base/bind_internal.h:499
+#9  base::internal::InvokeHelper<true, void>::MakeItSo<void (viz::GpuServiceImpl::*)(int, unsigned long long, bool, bool, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)>), base::WeakPtr<viz::GpuServiceImpl>, int, unsigned long long, bool, bool, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)> >(void (viz::GpuServiceImpl::*&&)(int, unsigned long long, bool, bool, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)>), base::WeakPtr<viz::GpuServiceImpl>&&, int&&, unsigned long long&&, bool&&, bool&&, base::OnceCallback<void (mojo::ScopedHandleBase<mojo::MessagePipeHandle>)>&&) () at ../../base/bind_internal.h:619
+```
+UI线程创建GPUchannel
+```
+#0  viz::GpuClient::PreEstablishGpuChannel () at ./../../components/viz/host/gpu_client.cc:66
+#1  0xbf5d79dc in content::RenderProcessHostImpl::Init () at ./../../content/browser/renderer_host/render_process_host_impl.cc:1822
+#2  0xbf53f5cc in content::RenderFrameHostManager::InitRenderView () at ./../../content/browser/frame_host/render_frame_host_manager.cc:2087
+#3  0xbf53e7a4 in content::RenderFrameHostManager::ReinitializeRenderFrame ()
+    at ./../../content/browser/frame_host/render_frame_host_manager.cc:2253
+#4  0xbf53dc44 in content::RenderFrameHostManager::GetFrameHostForNavigation ()
+    at ./../../content/browser/frame_host/render_frame_host_manager.cc:740
+#5  0xbf53d9fc in content::RenderFrameHostManager::DidCreateNavigationRequest ()
+    at ./../../content/browser/frame_host/render_frame_host_manager.cc:574
+#6  0xbf5102b6 in content::FrameTreeNode::CreatedNavigationRequest () at ./../../content/browser/frame_host/frame_tree_node.cc:430
+#7  0xbf5299d0 in content::NavigatorImpl::Navigate () at ./../../content/browser/frame_host/navigator_impl.cc:346
+#8  0xbf51da24 in content::NavigationControllerImpl::NavigateWithoutEntry ()
+    at ./../../content/browser/frame_host/navigation_controller_impl.cc:2878
+#9  content::NavigationControllerImpl::LoadURLWithParams () at ./../../content/browser/frame_host/navigation_controller_impl.cc:973
+#10 0xbf512bac in content::NavigationControllerAndroid::LoadUrl () at ./../../content/browser/frame_host/navigation_controller_android.cc:294
+#11 Java_com_bytedance_org_chromium_content_browser_framehost_NavigationControllerImpl_nativeLoadUrl ()
+    at gen/content/public/android/content_jni_headers/content/jni/NavigationControllerImpl_jni.h:241
+```
+GPU线程创建MailboxManagerSync
+```
+#0  gpu::gles2::CreateMailboxManager () at ../../third_party/mesa_headers/../../gpu/command_buffer/service/mailbox_manager_factory.cc:17
+#1  0xbf04696c in android_webview::DeferredGpuCommandService::CreateDeferredGpuCommandService ()
+    at ../../android_webview/browser/gfx/deferred_gpu_command_service.cc:135
+#2  android_webview::DeferredGpuCommandService::GetInstance () at ../../android_webview/browser/gfx/deferred_gpu_command_service.cc:148
+#3  0xbf03abe6 in android_webview::(anonymous namespace)::GetSyncPointManager () at ../../android_webview/lib/aw_main_delegate.cc:379
+#4  0xc130f834 in content::(anonymous namespace)::CreateVizMainDependencies () at ./../../content/gpu/gpu_child_thread.cc:172
+#5  content::GpuChildThread::GpuChildThread(base::RepeatingCallback<void ()>, content::ChildThreadImpl::Options const&, std::__1::unique_ptr<gpu::GpuInit, std::__1::default_delete<gpu::GpuInit> >) () at ./../../content/gpu/gpu_child_thread.cc:209
+#6  0xc1310abc in content::GpuChildThread::GpuChildThread () at ./../../content/gpu/gpu_child_thread.cc:196
+#7  content::InProcessGpuThread::Init () at ./../../content/gpu/in_process_gpu_thread.cc:59
+#8  0xbfdb7a52 in base::Thread::ThreadMain () at ./../../base/threading/thread.cc:301
+#9  0xbfddb234 in base::(anonymous namespace)::ThreadFunc () at ./../../base/threading/platform_thread_posix.cc:81
+```
