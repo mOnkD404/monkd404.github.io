@@ -331,3 +331,42 @@ RenderThread创建AwGLSurface
 #23 0xe7986b2a in android::uirenderer::renderthread::RenderThread::threadLoop() () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
 #24 0xe6d2689a in android::Thread::_threadLoop(void*) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libutils.so
 ```
+RenderThread 回放DrawQuad
+```
+#0  gpu::gles2::GLES2Implementation::CreateAndConsumeTextureCHROMIUM () at ./../../gpu/command_buffer/client/gles2_implementation.cc:6433
+#1  0xbd3a8ade in viz::DisplayResourceProvider::LockForRead () at ./../../components/viz/service/display/display_resource_provider.cc:478
+#2  0xbd3b0d54 in viz::DisplayResourceProvider::ScopedReadLockGL::ScopedReadLockGL () at ./../../components/viz/service/display/display_resource_provider.cc:843
+#3  viz::DisplayResourceProvider::ScopedSamplerGL::ScopedSamplerGL () at ./../../components/viz/service/display/display_resource_provider.cc:864
+#4  viz::GLRenderer::DrawContentQuadNoAA () at ./../../components/viz/service/display/gl_renderer.cc:2105
+#5  viz::GLRenderer::DrawContentQuad () at ./../../components/viz/service/display/gl_renderer.cc:1971
+#6  viz::GLRenderer::DrawTileQuad () at ./../../components/viz/service/display/gl_renderer.cc:1938
+#7  viz::GLRenderer::DoDrawQuad () at ./../../components/viz/service/display/gl_renderer.cc:533
+#8  0xbd3a0886 in viz::DirectRenderer::DrawRenderPass () at ./../../components/viz/service/display/direct_renderer.cc:714
+#9  viz::DirectRenderer::DrawRenderPassAndExecuteCopyRequests () at ./../../components/viz/service/display/direct_renderer.cc:573
+#10 0xbd3a6ea0 in viz::DirectRenderer::DrawFrame () at ./../../components/viz/service/display/direct_renderer.cc:429
+#11 viz::Display::DrawAndSwap () at ./../../components/viz/service/display/display.cc:492
+#12 0xbbc04b6e in android_webview::SurfacesInstance::DrawAndSwap () at ../../android_webview/browser/gfx/surfaces_instance.cc:239
+#13 0xbbc01e48 in android_webview::HardwareRenderer::Draw () at ../../android_webview/browser/gfx/hardware_renderer.cc:197
+#14 0xbbc0301a in android_webview::RenderThreadManager::DrawOnRT () at ../../android_webview/browser/gfx/render_thread_manager.cc:208
+#15 0xbbbfc3ca in android_webview::AwDrawFnImpl::DrawInternal<AwDrawFn_DrawGLParams> () at ../../android_webview/browser/gfx/aw_draw_fn_impl.cc:624
+#16 android_webview::AwDrawFnImpl::DrawGL () at ../../android_webview/browser/gfx/aw_draw_fn_impl.cc:275
+#17 android_webview::(anonymous namespace)::DrawGLWrapper () at ../../android_webview/browser/gfx/aw_draw_fn_impl.cc:133
+#18 0xdd5e5262 in android::(anonymous namespace)::draw_gl(int, void*, android::uirenderer::DrawGlInfo const&) ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libwebviewchromium_plat_support.so
+#19 0xe8712e20 in android::uirenderer::WebViewFunctor::drawGl(android::uirenderer::DrawGlInfo const&) ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#20 0xe871256e in android::uirenderer::skiapipeline::GLFunctorDrawable::onDraw(SkCanvas*) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#21 0xe8639024 in SkCanvas::onDrawDrawable(SkDrawable*, SkMatrix const*) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#22 0xe86315f4 in android::uirenderer::skiapipeline::RenderNodeDrawable::drawContent(SkCanvas*) const ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#23 0xe8657a42 in android::uirenderer::skiapipeline::RenderNodeDrawable::forceDraw(SkCanvas*) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#24 0xe865ccc8 in android::uirenderer::skiapipeline::SkiaPipeline::renderLayersImpl(android::uirenderer::LayerUpdateQueue const&, bool) ()
+   from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#25 0xe865ae44 in android::uirenderer::skiapipeline::SkiaPipeline::renderFrame(android::uirenderer::LayerUpdateQueue const&, SkRect const&, std::__1::vector<android::sp<android::uirenderer::RenderNode>, std::__1::allocator<android::sp<android::uirenderer::RenderNode> > > const&, bool, android::uirenderer::Rect const&, sk_sp<SkSurface>, SkMatrix const&) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#26 0xe865abc0 in android::uirenderer::skiapipeline::SkiaOpenGLPipeline::draw(android::uirenderer::renderthread::Frame const&, SkRect const&, SkRect const&, android::uirenderer::LightGeometry const&, android::uirenderer::LayerUpdateQueue*, android::uirenderer::Rect const&, bool, android::uirenderer::LightInfo const&, std::__1::vector<android::sp<android::uirenderer::RenderNode>, std::__1::allocator<android::sp<android::uirenderer::RenderNode> > > const&, android::uirenderer::FrameInfoVisualizer*) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#27 0xe8699df6 in android::uirenderer::renderthread::CanvasContext::draw() () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#28 0xe86993de in std::__1::__function::__func<android::uirenderer::renderthread::DrawFrameTask::postAndWait()::$_0, std::__1::allocator<android::uirenderer::renderthread::DrawFrameTask::postAndWait()::$_0>, void ()>::operator() () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#29 0xe86a6cd0 in android::uirenderer::WorkQueue::process() () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#30 0xe86a6b2a in android::uirenderer::renderthread::RenderThread::threadLoop() () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
+#31 0xe8ca889a in android::Thread::_threadLoop(void*) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libutils.so
+```
