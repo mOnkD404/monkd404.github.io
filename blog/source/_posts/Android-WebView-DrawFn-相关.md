@@ -370,3 +370,34 @@ RenderThread 回放DrawQuad
 #30 0xe86a6b2a in android::uirenderer::renderthread::RenderThread::threadLoop() () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libhwui.so
 #31 0xe8ca889a in android::Thread::_threadLoop(void*) () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libutils.so
 ```
+GPU thread 用skia 绘制
+```
+#0  0xe6692354 in glDrawElements () from /tmp/adb-gdb-libs-99121FFAZ00A7P/system/lib/libGLESv2.so
+#1  0xbcefdbcc in GrGLGpu::sendIndexedMeshToGpu () at ../../third_party/skia/include/gpu/gl/GrGLFunctions.h:303
+#2  0xbcefdc2e in non-virtual thunk to GrGLGpu::sendIndexedMeshToGpu(GrPrimitiveType, GrBuffer const*, int, int, unsigned short, unsigned short, GrBuffer const*, int, GrPrimitiveRestart) () at ../../third_party/skia/include/gpu/gl/GrGLFunctions.h:303
+#3  0xbcefda84 in GrMesh::sendToGpu () at ../../third_party/skia/src/gpu/GrMesh.h:246
+#4  0xbcefd92e in GrGLGpu::draw () at ../../third_party/skia/src/gpu/gl/GrGLGpu.cpp:2624
+#5  0xbcf015ac in GrGLGpuRTCommandBuffer::onDraw () at ../../third_party/skia/src/gpu/gl/GrGLGpuCommandBuffer.h:88
+#6  0xbce88cda in GrGpuRTCommandBuffer::draw () at ../../third_party/skia/src/gpu/GrGpuCommandBuffer.cpp:101
+#7  0xbce8a232 in GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(GrOp const*, SkRect const&, GrProcessorSet&&, GrPipeline::InputFlags, GrUserStencilSettings const*) () at ../../third_party/skia/src/gpu/GrOpFlushState.cpp:56
+#8  0xbced1f7a in GrSimpleMeshDrawOpHelper::executeDrawsAndUploads () at ../../third_party/skia/src/gpu/ops/GrSimpleMeshDrawOpHelper.cpp:109
+#9  0xbce9c79c in GrOp::execute () at ../../third_party/skia/src/gpu/ops/GrOp.h:181
+#10 0xbce9c6a0 in GrRenderTargetOpList::onExecute () at ../../third_party/skia/src/gpu/GrRenderTargetOpList.cpp:512
+#11 0xbce8308a in GrOpList::execute () at ../../third_party/skia/include/private/GrOpList.h:41
+#12 GrDrawingManager::executeOpLists () at ../../third_party/skia/src/gpu/GrDrawingManager.cpp:496
+#13 GrDrawingManager::flush () at ../../third_party/skia/src/gpu/GrDrawingManager.cpp:357
+#14 0xbce83464 in GrDrawingManager::flushSurfaces () at ../../third_party/skia/src/gpu/GrDrawingManager.cpp:575
+#15 0xbce9b1dc in GrDrawingManager::flushSurface () at ../../third_party/skia/src/gpu/GrDrawingManager.h:89
+#16 GrRenderTargetContext::flush () at ../../third_party/skia/src/gpu/GrRenderTargetContext.cpp:1757
+#17 0xbbdb209a in SkSurface::flush () at ../../third_party/skia/src/image/SkSurface.cpp:247
+---Type <return> to continue, or q <return> to quit---
+#18 SkSurface::flush () at ../../third_party/skia/src/image/SkSurface.cpp:243
+#19 0xbd4dc312 in gpu::raster::RasterDecoderImpl::DoEndRasterCHROMIUM ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/raster_decoder.cc:2193
+#20 gpu::raster::RasterDecoderImpl::HandleEndRasterCHROMIUM () at ../../gpu/command_buffer/service/raster_decoder_autogen.h:157
+#21 0xbd4df1a6 in gpu::raster::RasterDecoderImpl::DoCommandsImpl<false> ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/raster_decoder.cc:1184
+#22 gpu::raster::RasterDecoderImpl::DoCommands () at ../../third_party/mesa_headers/../../gpu/command_buffer/service/raster_decoder.cc:1243
+#23 0xbd3a25a0 in gpu::CommandBufferService::Flush () at ./../../gpu/command_buffer/service/command_buffer_service.cc:69
+#24 0xbd53d160 in gpu::CommandBufferStub::OnAsyncFlush () at ./../../gpu/ipc/service/command_buffer_stub.cc:522
+```
