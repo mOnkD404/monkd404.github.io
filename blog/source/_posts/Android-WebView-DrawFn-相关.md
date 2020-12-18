@@ -401,3 +401,78 @@ GPU thread 用skia 绘制
 #23 0xbd3a25a0 in gpu::CommandBufferService::Flush () at ./../../gpu/command_buffer/service/command_buffer_service.cc:69
 #24 0xbd53d160 in gpu::CommandBufferStub::OnAsyncFlush () at ./../../gpu/ipc/service/command_buffer_stub.cc:522
 ```
+gpu线程创建skia surface
+```
+#0  gpu::SharedImageRepresentationSkiaImpl::SharedImageRepresentationSkiaImpl ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:359
+#1  0xbd5d91ea in base::RefCounted<gpu::SharedContextState, base::DefaultRefCountedTraits<gpu::SharedContextState> >::DeleteInternal<gpu::SharedContextState> () at ../../base/memory/ref_counted.h:352
+#2  base::DefaultRefCountedTraits<gpu::SharedContextState>::Destruct () at ../../base/memory/ref_counted.h:318
+#3  base::RefCounted<gpu::SharedContextState, base::DefaultRefCountedTraits<gpu::SharedContextState> >::Release ()
+    at ../../base/memory/ref_counted.h:341
+#4  scoped_refptr<gpu::SharedContextState>::Release () at ../../base/memory/scoped_refptr.h:297
+#5  scoped_refptr<gpu::SharedContextState>::~scoped_refptr () at ../../base/memory/scoped_refptr.h:209
+#6  std::__1::make_unique<gpu::SharedImageRepresentationSkiaImpl, gpu::SharedImageManager*&, gpu::SharedImageBackingGLTexture*, scoped_refptr<gpu::SharedContextState>, sk_sp<SkPromiseImageTexture>&, gpu::MemoryTypeTracker*&, unsigned int, unsigned int>(gpu::SharedImageManager*&, gpu::SharedImageBackingGLTexture*&&, scoped_refptr<gpu::SharedContextState>&&, sk_sp<SkPromiseImageTexture>&, gpu::MemoryTypeTracker*&, unsigned int&&, unsigned int&&) () at ../../buildtools/third_party/libc++/trunk/include/memory:3131
+#7  gpu::SharedImageBackingGLTexture::ProduceSkia ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:615
+#8  0xbd5c925e in base::RefCounted<gpu::SharedContextState, base::DefaultRefCountedTraits<gpu::SharedContextState> >::DeleteInternal<gpu::SharedContextState> () at ../../base/memory/ref_counted.h:352
+#9  base::DefaultRefCountedTraits<gpu::SharedContextState>::Destruct () at ../../base/memory/ref_counted.h:318
+#10 base::RefCounted<gpu::SharedContextState, base::DefaultRefCountedTraits<gpu::SharedContextState> >::Release ()
+    at ../../base/memory/ref_counted.h:341
+#11 scoped_refptr<gpu::SharedContextState>::Release () at ../../base/memory/scoped_refptr.h:297
+#12 scoped_refptr<gpu::SharedContextState>::~scoped_refptr () at ../../base/memory/scoped_refptr.h:209
+#13 gpu::SharedImageManager::ProduceSkia () at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_manager.cc:192
+#14 0xbd5bb6a2 in base::RefCounted<gpu::SharedContextState, base::DefaultRefCountedTraits<gpu::SharedContextState> >::DeleteInternal<gpu::SharedContextState> () at ../../base/memory/ref_counted.h:352
+#15 base::DefaultRefCountedTraits<gpu::SharedContextState>::Destruct () at ../../base/memory/ref_counted.h:318
+#16 base::RefCounted<gpu::SharedContextState, base::DefaultRefCountedTraits<gpu::SharedContextState> >::Release ()
+    at ../../base/memory/ref_counted.h:341
+#17 scoped_refptr<gpu::SharedContextState>::Release () at ../../base/memory/scoped_refptr.h:297
+#18 scoped_refptr<gpu::SharedContextState>::~scoped_refptr () at ../../base/memory/scoped_refptr.h:209
+#19 gpu::SharedImageRepresentationFactory::ProduceSkia ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_factory.cc:337
+#20 gpu::raster::RasterDecoderImpl::DoBeginRasterCHROMIUM ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/raster_decoder.cc:2026
+#21 gpu::raster::RasterDecoderImpl::HandleBeginRasterCHROMIUMImmediate () at ../../gpu/command_buffer/service/raster_decoder_autogen.h:130
+#22 0xbd5bf1b6 in gpu::raster::RasterDecoderImpl::DoCommandsImpl<false> ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/raster_decoder.cc:1205
+#23 gpu::raster::RasterDecoderImpl::DoCommands () at ../../third_party/mesa_headers/../../gpu/command_buffer/service/raster_decoder.cc:1243
+#24 0xbd4825b0 in gpu::CommandBufferService::Flush () at ./../../gpu/command_buffer/service/command_buffer_service.cc:75
+#25 0xbd61d170 in gpu::CommandBufferStub::OnAsyncFlush () at ./../../gpu/ipc/service/command_buffer_stub.cc:525
+#26 0xbd61cace in trace_event_internal::ScopedTracer::ScopedTracer () at ../../base/trace_event/trace_event.h:983
+#27 IPC::MessageT<GpuCommandBufferMsg_RegisterTransferBuffer_Meta, std::__1::tuple<int, base::UnsafeSharedMemoryRegion>, void>::Dispatch<gpu::CommandBufferStub, gpu::CommandBufferStub, void, void (gpu::CommandBufferStub::*)(int, base::UnsafeSharedMemoryRegion)> ()
+    at ../../ipc/ipc_message_templates.h:143
+```
+gpu线程创建shared image backing 实际就是GL_TEXTURE_2D
+```
+#0  gpu::SharedImageBackingFactoryGLTexture::MakeBacking ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:1241
+#1  0xbd480cb0 in gpu::SharedImageBackingFactoryGLTexture::CreateSharedImage ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:1052
+#2  0xbd480792 in gpu::SharedImageBackingFactoryGLTexture::CreateSharedImage ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:857
+#3  0xbd483336 in gpu::SharedImageFactory::CreateSharedImage ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_factory.cc:115
+#4  0xbd4df890 in gpu::SharedImageStub::OnCreateSharedImage () at ./../../gpu/ipc/service/shared_image_stub.cc:99
+#5  0xbd4df5a0 in base::DispatchToMethodImpl<gpu::SharedImageStub*, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>, 0u>(gpu::SharedImageStub* const&, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>&&, std::__1::integer_sequence<unsigned int, 0u>) ()
+    at ../../base/tuple.h:52
+```
+gpu线程创建 EglImage
+```
+#0  gpu::gles2::TextureDefinition::TextureDefinition ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/texture_definition.cc:361
+#1  0xbd3ad1b0 in gpu::gles2::MailboxManagerSync::ProduceTexture ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/mailbox_manager_sync.cc:250
+#2  0xbd3da506 in gpu::SharedImageBackingPassthroughGLTexture::ProduceLegacyMailbox ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_backing_factory_gl_texture.cc:680
+#3  0xbd3ca5bc in gpu::SharedImageRepresentationFactoryRef::ProduceLegacyMailbox ()
+    at ../../gpu/command_buffer/service/shared_image_representation.h:73
+#4  gpu::SharedImageFactory::RegisterBacking () at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_factory.cc:296
+#5  0xbd3ca36e in gpu::SharedImageFactory::CreateSharedImage ()
+    at ../../third_party/mesa_headers/../../gpu/command_buffer/service/shared_image_factory.cc:120
+#6  0xbd426890 in gpu::SharedImageStub::OnCreateSharedImage () at ./../../gpu/ipc/service/shared_image_stub.cc:99
+#7  0xbd4265a0 in base::DispatchToMethodImpl<gpu::SharedImageStub*, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>, 0u>(gpu::SharedImageStub* const&, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>&&, std::__1::integer_sequence<unsigned int, 0u>) ()
+    at ../../base/tuple.h:52
+#8  base::DispatchToMethod<gpu::SharedImageStub*, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params> >(gpu::SharedImageStub* const&, void (gpu::SharedImageStub::*)(GpuChannelMsg_CreateSharedImage_Params const&), std::__1::tuple<GpuChannelMsg_CreateSharedImage_Params>&&) () at ../../base/tuple.h:60
+```
+eglImage被放入MailboxManagerSync的texture_to_group_里面
+
+然后在RenderThread DrawQuad的时候通过resource id 拿到resource，通过resource的mailbox name,调用CreateAndConsumeTextureCHROMIUM,先序列化，再回放，取到gpu线程绘制的eglImage。 
