@@ -5,13 +5,17 @@
   
 
   
-  <title>Archives: 2020/11 | DTech</title>
+  <title>NextCloud on TrueNas | DTech</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
-<meta property="og:title" content="DTech">
-<meta property="og:url" content="https://bathingsun.xyz/archives/2020/11/index.html">
+  <meta name="description" content="TrueNas中直接包含了NextCloud的plugin，可以直接安装，国内要挂全局梯子。 安装之后路由器开启端口转发，跟ISP申请公网ip，之后就可以外网访问了，但是不支持https。 如果想通过https访问，需要为 Nextcloud 申请证书。 接下来通过Cloudflare 的api key实现ddns。 需要：openwrt truenas cloudflare Nextcloud">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NextCloud on TrueNas">
+<meta property="og:url" content="https://bathingsun.xyz/2021/03/09/NextCloud-on-TrueNas/index.html">
 <meta property="og:site_name" content="DTech">
+<meta property="og:description" content="TrueNas中直接包含了NextCloud的plugin，可以直接安装，国内要挂全局梯子。 安装之后路由器开启端口转发，跟ISP申请公网ip，之后就可以外网访问了，但是不支持https。 如果想通过https访问，需要为 Nextcloud 申请证书。 接下来通过Cloudflare 的api key实现ddns。 需要：openwrt truenas cloudflare Nextcloud">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-03-09T10:40:08.000Z">
+<meta property="article:modified_time" content="2021-03-09T10:44:24.476Z">
 <meta property="article:author" content="MonkD404">
 <meta name="twitter:card" content="summary">
   
@@ -62,40 +66,73 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2020/11/10/%E5%A6%82%E4%BD%95%E8%B0%83%E6%95%99%E4%B8%80%E5%8F%B0%E5%AE%8C%E7%BE%8E%E6%B5%8B%E8%AF%95%E6%9C%BA/" class="archive-article-date">
-  <time datetime="2020-11-10T03:51:38.000Z" itemprop="datePublished">Nov 10</time>
+        <section id="main"><article id="post-NextCloud-on-TrueNas" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2021/03/09/NextCloud-on-TrueNas/" class="article-date">
+  <time datetime="2021-03-09T10:40:08.000Z" itemprop="datePublished">2021-03-09</time>
 </a>
-      
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2020/11/10/%E5%A6%82%E4%BD%95%E8%B0%83%E6%95%99%E4%B8%80%E5%8F%B0%E5%AE%8C%E7%BE%8E%E6%B5%8B%E8%AF%95%E6%9C%BA/">如何调教一台完美的测试机:AOSP刷入GMS记录</a>
+    <h1 class="article-title" itemprop="name">
+      NextCloud on TrueNas
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>TrueNas中直接包含了NextCloud的plugin，可以直接安装，国内要挂全局梯子。</p>
+<p>安装之后路由器开启端口转发，跟ISP申请公网ip，之后就可以外网访问了，但是不支持https。</p>
+<p>如果想通过https访问，需要为 Nextcloud 申请证书。</p>
+<p>接下来通过Cloudflare 的api key实现ddns。</p>
+<p>需要：openwrt truenas cloudflare</p>
+<p>Nextcloud 中部署ssl证书，需要用到let’s encrypt 的手动模式，因为家庭网络禁止访问80和443端口，</p>
+<p>证书申请成功之后nextcloud可以从外网 通过加密连接访问</p>
+<p>详细步骤</p>
+<ol>
+<li><p>购买域名</p>
+</li>
+<li><p>配置cloudflare dns</p>
+</li>
+<li><p>将一个前缀子域名当作 自建cloud的域名 申请证书用</p>
+</li>
+<li><p>路由器openwrt上配置ddns，通过cloudflare的api，可以实现远程更新，需要在openwrt里自定义<br>参考 <a target="_blank" rel="noopener" href="https://gist.github.com/icyleaf/8fc867003cb3c868bfae855e722ce392#file-readme-md">https://gist.github.com/icyleaf/8fc867003cb3c868bfae855e722ce392#file-readme-md</a></p>
+</li>
+</ol>
+<p>到这里ddns配置好了，</p>
+<p>然后给nextcloud申请证书，由于家庭网络不能访问80和443，因此不能直接用let‘s encrypte申请，需要用手动功能，在dns服务器上配置一个txt记录，完成证书验证<br>参考<a target="_blank" rel="noopener" href="https://www.shogan.co.uk/home-labs/install-and-configure-nextcloud-plugin-on-freenas-with-ssl/">https://www.shogan.co.uk/home-labs/install-and-configure-nextcloud-plugin-on-freenas-with-ssl/</a></p>
+<p>配置好以后nextcloud可以支持https访问了，更新域名时需要更新里面的nginx配置文件<br>/usr/local/etc/nginx/conf.d/nextcloud-ssl.conf</p>
+<p>Nextcloud如果要在外网访问还需要开启允许所有域名，手机ip一直变这是没办法的<br>/usr/local/www/nextcloud/config/config.php</p>
 
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://bathingsun.xyz/2021/03/09/NextCloud-on-TrueNas/" data-id="ckm1vz5l90000kos31m7kdogs" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2021/01/19/hash%E5%87%BD%E6%95%B0/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">hash函数</div>
+    </a>
+  
+</nav>
+
+  
+</article>
 
 </section>
         
